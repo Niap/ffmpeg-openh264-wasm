@@ -42,3 +42,12 @@ check ffmpeg-core.wasm represents success.
 # How to use
 
 This repo just a replacement of https://github.com/ffmpegwasm/ffmpeg.wasm-core ,You can use ffmepg.wasm as caller. 
+
+# Example
+```
+cd example 
+npm install
+node server.js
+```
+
+Can't use http-server as http server ,wasm requires Cross-Origin-Opener-Policy & Cross-Origin-Embedder-Policy.
