@@ -4,3 +4,6 @@
 [submodule "openh264"]
 	path = openh264
 	url = https://github.com/cisco/openh264
+[submodule "lame"]
+	path = lame
+	url = https://github.com/ffmpegwasm/lame
