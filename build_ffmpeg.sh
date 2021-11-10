@@ -5,7 +5,7 @@ FLAGS=(
   -Wno-deprecated-declarations -Wno-pointer-sign -Wno-implicit-int-float-conversion -Wno-switch -Wno-parentheses -Qunused-arguments
   -lavdevice -lavfilter -lavformat -lavcodec -lswresample -lswscale -lavutil -lopenh264 -lmp3lame -lm
   ffmpeg/fftools/ffmpeg_opt.c ffmpeg/fftools/ffmpeg_filter.c ffmpeg/fftools/ffmpeg_hw.c ffmpeg/fftools/cmdutils.c ffmpeg/fftools/ffmpeg.c
-  -o build/ffmpeg-core.js
+  -o example/ffmpeg-core.js
   -O3
   -msimd128 
   -s USE_SDL=0                                  # use SDL2
