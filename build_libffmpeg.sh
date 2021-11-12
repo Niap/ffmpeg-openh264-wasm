@@ -1,5 +1,5 @@
 BUILD_DIR=$PWD/build
-CFLAGS="-s USE_PTHREADS=1 -O3 -msimd128 -I$BUILD_DIR/include"
+CFLAGS="-s USE_PTHREADS=0 -O3 -msimd128 -I$BUILD_DIR/include"
 LDFLAGS="$CFLAGS -L$BUILD_DIR/lib"
 FLAGS=(
   --prefix="$BUILD_DIR" 

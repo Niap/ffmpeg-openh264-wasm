@@ -11,120 +11,46 @@ const readFromBlobOrFile = (blob) => (
   })
 );
 
-const runMain = async (ifilename, data,ofilename ,args) => {
+const runFFmpeg = (ifilename, data, args, ofilename, extraFiles = []) => {
   let resolve = null;
   let file = null;
-  const Core = await createVme({
-    printErr: (m) => {
-      console.log(m);
-    },
-    print: (m) => {
-      console.log(m);
-      if (m.startsWith('MAIN_END')) {
-        resolve();
-      }
-    },
-  });
-  Core.FS.writeFile(ifilename, data);
-  main(Core, args);
-  await new Promise((_resolve) => { resolve = _resolve });
+  // const Core = await createFFmpegCore({
+  //   printErr: (m) => {
+  //     console.log(m);
+  //   },
+  //   print: (m) => {
+  //     console.log(m);
+  //   },
+  // });
+  FS.writeFile(ifilename, data);
+  ffmpeg(args);
+  //await new Promise((_resolve) => { resolve = _resolve });
   if (typeof ofilename !== 'undefined') {
-    file = Core.FS.readFile(ofilename);
-    Core.FS.unlink(ofilename);
+    file = FS.readFile(ofilename);
+    FS.unlink(ofilename);
   }
-  return { Core, file };
+  return {file };
 };
 
 
-const runFFmpeg = async (ifilename, data, args, ofilename, extraFiles = []) => {
-  let resolve = null;
-  let file = null;
-  const Core = await createFFmpegCore({
-    printErr: (m) => {
-      console.log(m);
-    },
-    print: (m) => {
-      console.log(m);
-      if (m.startsWith('FFMPEG_END')) {
-        resolve();
-      }
-    },
-  });
-  extraFiles.forEach(({ name, data: d }) => {
-    Core.FS.writeFile(name, d);
-  });
-  Core.FS.writeFile(ifilename, data);
-  ffmpeg(Core, args);
-  await new Promise((_resolve) => { resolve = _resolve });
-  if (typeof ofilename !== 'undefined') {
-    file = Core.FS.readFile(ofilename);
-    Core.FS.unlink(ofilename);
-  }
-  return { Core, file };
-};
 
 
-const runFFprobe = async (ifilename, data, args, ofilename) => {
-  let resolve = null;
-  let file = null;
-  const Core = await createFFmpegCore({
-    printErr: (m) => {
-      console.log(m);
-      if (m.startsWith('END')) {
-        resolve();
-      }
-    },
-    print: (m) => {
-      console.log(m);
-      
-    },
-  });
-  
-  Core.FS.writeFile(ifilename, data);
-  ffprobe(Core, args);
-  await new Promise((_resolve) => { resolve = _resolve });
-  if (typeof ofilename !== 'undefined') {
-    file = Core.FS.readFile(ofilename);
-    Core.FS.unlink(ofilename);
-  }
-  return { Core, file };
-};
-
-
-const main = (Core,args) => {
-  Core.ccall(
-    'emscripten_proxy_main',
+const ffmpeg = (args) => {
+  ccall(
+    'main',
     'number',
     ['number', 'number'],
-    parseArgs(Core, [...args]),
+    parseArgs(['ffmpeg', '-nostdin', ...args]),
   );
 };
 
 
-const ffmpeg = (Core,args) => {
-  Core.ccall(
-    'emscripten_proxy_main',
-    'number',
-    ['number', 'number'],
-    parseArgs(Core, ['ffmpeg', '-nostdin', ...args]),
-  );
-};
-
-const ffprobe = (Core,args) => {
-  Core.ccall(
-    'emscripten_proxy_main',
-    'number',
-    ['number', 'number'],
-    parseArgs(Core, ['ffprobe', ...args]),
-  );
-};
-
-const parseArgs = (Core, args) => {
-  const argsPtr = Core._malloc(args.length * Uint32Array.BYTES_PER_ELEMENT);
+const parseArgs = (args) => {
+  const argsPtr = _malloc(args.length * Uint32Array.BYTES_PER_ELEMENT);
   args.forEach((s, idx) => {
-    const buf = Core._malloc(s.length + 1);
-    Core.writeAsciiToMemory(s, buf);
-    Core.setValue(argsPtr + (Uint32Array.BYTES_PER_ELEMENT * idx), buf, 'i32');
+    const buf = _malloc(s.length + 1);
+    writeAsciiToMemory(s, buf);
+    setValue(argsPtr + (Uint32Array.BYTES_PER_ELEMENT * idx), buf, 'i32');
   });
   return [args.length, argsPtr];
 };
