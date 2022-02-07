@@ -14,40 +14,37 @@
     </style>
   </head>
   <body>
-    <h3>Upload a video to transcode to mp4 (x264) and play!</h3>
-    <input type="file" id="uploader">
-    <img id="output-image" />
-    <img id="cover-image" />
-    <audio id="output-audio" controls></audio>
-    <video id="output-video" controls></video>
-    <script type="text/javascript">
-     const readFromBlobOrFile = (blob) => (
-        new Promise((resolve, reject) => {
-          const fileReader = new FileReader();
-          fileReader.onload = () => {
-            resolve(fileReader.result);
-          };
-          fileReader.onerror = ({ target: { error: { code } } }) => {
-            reject(Error(`File could not be read! Code=${code}`));
-          };
-          fileReader.readAsArrayBuffer(blob);
+    <script type="text/javascript" src="./converter.js"></script>
+    <!-- delete createAsm() && run() -->
+    <script type="text/javascript" >
+      var info = {
+        'env': asmLibraryArg,
+        'wasi_snapshot_preview1': asmLibraryArg,
+      };
+      function receiveInstance(instance) {
+        var exports = instance.exports;
+        Module['asm'] = exports;
+        wasmMemory = Module['asm']['memory'];
+        assert(wasmMemory, "memory not found in wasm exports");
+        // This assertion doesn't hold when emscripten is run in --post-link
+        // mode.
+        // TODO(sbc): Read INITIAL_MEMORY out of the wasm file in post-link mode.
+        assert(wasmMemory.buffer.byteLength === 268435456);
+        updateGlobalBufferAndViews(wasmMemory.buffer);
+        wasmTable = Module['asm']['__indirect_function_table'];
+        assert(wasmTable, "table not found in wasm exports");
+        addOnInit(Module['asm']['__wasm_call_ctors']);
+        removeRunDependency('wasm-instantiate');
+      }
+      fetch("./converter.wasm", { credentials: 'same-origin' }).then((response)=>{
+        response.arrayBuffer().then((binary)=>{
+            WebAssembly.instantiate(binary, info).then((data)=>{
+              addRunDependency('wasm-instantiate');
+              run();
+              receiveInstance(data.instance)
+            })
         })
-    );
-
-      const ffmpegWorker = new Worker("worker.js");
-    
-      ffmpegWorker.onmessage = (e)=>{
-        const videoDom = document.getElementById('output-video');
-        videoDom.src = URL.createObjectURL(new Blob([e.data], { type: 'video/mp4' }));
-      }
-
-      const onFileSelected = async ({target: { files }})=>{
-
-        const data = new Uint8Array(await readFromBlobOrFile(files[0]));
-        ffmpegWorker.postMessage(data);
-      }
-      document.getElementById('uploader').addEventListener('change', onFileSelected);
+      })
     </script>
-    <script type="text/javascript" src="./ffmpeg-core.js"></script>
   </body>
 </html>

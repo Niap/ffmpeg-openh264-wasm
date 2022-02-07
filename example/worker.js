@@ -1,36 +1,75 @@
 
 
-const parseArgs = (args) => {
-    const argsPtr = _malloc(args.length * Uint32Array.BYTES_PER_ELEMENT);
+const parseArgs = (Core,args) => {
+    const argsPtr = Core._malloc(args.length * Uint32Array.BYTES_PER_ELEMENT);
     args.forEach((s, idx) => {
-        const buf = _malloc(s.length + 1);
-        writeAsciiToMemory(s, buf);
-        setValue(argsPtr + (Uint32Array.BYTES_PER_ELEMENT * idx), buf, 'i32');
+        const buf = Core._malloc(s.length + 1);
+        Core.writeAsciiToMemory(s, buf);
+        Core.setValue(argsPtr + (Uint32Array.BYTES_PER_ELEMENT * idx), buf, 'i32');
     });
     return [args.length, argsPtr];
 };
-onmessage = function(e) {
-    const fileData = e.data;
-    const IN_FILE_NAME = '/video.mp4';
-    FS.writeFile(IN_FILE_NAME, fileData);
-    const outFile = "/out.mp4";
-    const args = ["-i", IN_FILE_NAME, '-vf', 'scale=-2:360', '-c:v','h264', '-c:a', 'copy', outFile];
+
+const trancode = (inputFile,fileData,num,start,end)=>{
+
+    Core.FS.writeFile(inputFile, fileData);
+    var outputFile = `/video_${num}.ts`;
     console.time("a")
     try{
-        ccall(
+        Core._convert(['ffmpeg', "-i", inputFile, '-c', 'copy', outputFile]);
+    }catch(e){
+        console.log(e)
+    }
+    console.timeEnd("a")
+    var outFile = Core.FS.readFile(outputFile);
+    postMessage(outFile);
+}
+
+
+const probe = (Core,inputFile,fileData)=>{
+    Core.FS.writeFile(inputFile, fileData);
+    try{
+        Core.ccall(
             'main',
             'number',
             ['number', 'number'],
-            parseArgs(['ffmpeg', '-nostdin', ...args]),
+            parseArgs(Core,['ffprobe', '-print_format','json', '-show_format', '-show_streams', '-i', inputFile]),
         );
     }catch(e){
-        
+        console.log(e)
     }
-    console.timeEnd("a")
+    var fileData = Core.FS.readFile("/out.txt");
+    postMessage({
+        type:"probe",
+        fileData:fileData
+    });
+}
+
+onmessage = function(e) {
+    const {opration,fileData} = e.data;
+
+    createConverter({
+        printErr: (m) => {
+          console.log(m);
+        },
+        print: (m) => {
+          console.log(m);
+        },
+    }).then((Core)=>{
+        switch(opration){
+        case "trancode":
+            break;
+        case "probe":
+            probe(Core,"/probe.mp4",fileData);
+            break;
+        case "concat":
+            break;
+    }
+    })
+
     
-    var video360File = FS.readFile(outFile);
-    postMessage(video360File);
+   
    
 }
 
-self.importScripts('ffmpeg-core.js');
+self.importScripts('converter.js');
