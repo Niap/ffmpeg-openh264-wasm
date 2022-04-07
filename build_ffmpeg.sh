@@ -3,8 +3,8 @@ FLAGS=(
   -I$BUILD_DIR/include -Iffmpeg
   -L$BUILD_DIR/lib
   -Wno-deprecated-declarations -Wno-pointer-sign -Wno-implicit-int-float-conversion -Wno-switch -Wno-parentheses -Qunused-arguments
-  -lavdevice -lavfilter -lavformat -lavcodec -lswresample -lswscale -lavutil -lopenh264 -lmp3lame -lm
-  ffmpeg/fftools/ffmpeg_opt.c ffmpeg/fftools/ffmpeg_filter.c ffmpeg/fftools/ffmpeg_hw.c ffmpeg/fftools/cmdutils.c ffmpeg/fftools/ffmpeg.c ffmpeg/fftools/ffprobe.c ./main.c
+  -lavdevice -lavfilter -lavformat -lavcodec -lswresample -lswscale -lavutil -lm
+  src/ffmpeg_opt.c src/ffmpeg_filter.c src/ffmpeg_hw.c src/cmdutils.c src/ffmpeg.c src/ffprobe.c src/main.c
   -o example/converter.js
   -g
   -msimd128
