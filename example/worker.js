@@ -1,75 +1,103 @@
-
-
-const parseArgs = (Core,args) => {
-    const argsPtr = Core._malloc(args.length * Uint32Array.BYTES_PER_ELEMENT);
+const parseArgs = (args) => {
+    const argsPtr = _malloc(args.length * Uint32Array.BYTES_PER_ELEMENT);
     args.forEach((s, idx) => {
-        const buf = Core._malloc(s.length + 1);
-        Core.writeAsciiToMemory(s, buf);
-        Core.setValue(argsPtr + (Uint32Array.BYTES_PER_ELEMENT * idx), buf, 'i32');
+        const buf = _malloc(s.length + 1);
+        writeAsciiToMemory(s, buf);
+        setValue(argsPtr + (Uint32Array.BYTES_PER_ELEMENT * idx), buf, 'i32');
     });
     return [args.length, argsPtr];
-};
+  };
 
-const trancode = (inputFile,fileData,num,start,end)=>{
 
-    Core.FS.writeFile(inputFile, fileData);
-    var outputFile = `/video_${num}.ts`;
-    console.time("a")
-    try{
-        Core._convert(['ffmpeg', "-i", inputFile, '-c', 'copy', outputFile]);
-    }catch(e){
-        console.log(e)
-    }
-    console.timeEnd("a")
-    var outFile = Core.FS.readFile(outputFile);
-    postMessage(outFile);
+function receiveInstance(instance) {
+    var exports = instance.exports;
+    Module['asm'] = exports;
+    wasmMemory = Module['asm']['memory'];
+    assert(wasmMemory, "memory not found in wasm exports");
+    // This assertion doesn't hold when emscripten is run in --post-link
+    // mode.
+    // TODO(sbc): Read INITIAL_MEMORY out of the wasm file in post-link mode.
+    assert(wasmMemory.buffer.byteLength === 268435456);
+    updateGlobalBufferAndViews(wasmMemory.buffer);
+    wasmTable = Module['asm']['__indirect_function_table'];
+    assert(wasmTable, "table not found in wasm exports");
+    addOnInit(Module['asm']['__wasm_call_ctors']);
+    removeRunDependency('wasm-instantiate');
 }
 
-
-const probe = (Core,inputFile,fileData)=>{
-    Core.FS.writeFile(inputFile, fileData);
-    try{
-        Core.ccall(
-            'main',
-            'number',
-            ['number', 'number'],
-            parseArgs(Core,['ffprobe', '-print_format','json', '-show_format', '-show_streams', '-i', inputFile]),
-        );
-    }catch(e){
-        console.log(e)
-    }
-    var fileData = Core.FS.readFile("/out.txt");
-    postMessage({
-        type:"probe",
-        fileData:fileData
-    });
-}
-
-onmessage = function(e) {
-    const {opration,fileData} = e.data;
-
-    createConverter({
-        printErr: (m) => {
-          console.log(m);
-        },
-        print: (m) => {
-          console.log(m);
-        },
-    }).then((Core)=>{
-        switch(opration){
-        case "trancode":
-            break;
-        case "probe":
-            probe(Core,"/probe.mp4",fileData);
-            break;
-        case "concat":
-            break;
-    }
-    })
-
-    
-   
-   
-}
+var main = null;
 
 self.importScripts('converter.js');
+
+var info = {
+    'env': asmLibraryArg,
+    'wasi_snapshot_preview1': asmLibraryArg,
+  };
+
+onmessage = (e)=>{
+    // createConverter().then((Core)=>{
+    const {command,params} = e.data;
+    if( command == "ffmpeg" ){
+        const {fileName,fileData,sourceType,targetType} = params;
+        sourcePath = "/"+fileName+"."+sourceType;
+        targetPath = "/"+fileName+"_out."+targetType;
+        FS.writeFile(sourcePath, fileData);
+        const args = ['ffmpeg', '-nostdin',"-i", sourcePath,  '-c','copy', targetPath];
+        try{
+            ccall(
+                'main',
+                'number',
+                ['number', 'number'],
+                parseArgs(args),
+            );
+        }catch(e){
+            console.log(e);
+        }
+        var outputData = FS.readFile(targetPath);
+        FS.unlink(sourcePath);
+        FS.unlink(targetPath);
+        postMessage({
+            command:"ffmpeg",
+            params:{
+                fileName:fileName,
+                targetType:targetType,
+                videoData:outputData
+            }
+        });
+    }else if(command == "ffprobe"){
+        const {fileName,sourceType,fileData} = params;
+        sourcePath = "/"+fileName+"."+sourceType;;
+        targetPath = "/out.txt";
+        FS.writeFile(sourcePath, fileData);
+        const args = ['ffprobe',  '-print_format','json', '-show_format','-i', sourcePath];
+        try{
+            ccall(
+                'main',
+                'number',
+                ['number', 'number'],
+                parseArgs(args),
+            );
+        }catch(e){
+            console.log(e);
+        }
+        var outputData = FS.readFile(targetPath);
+        FS.unlink(sourcePath);
+        FS.unlink(targetPath);
+        var jsonStr = String.fromCharCode.apply(null, outputData);
+        postMessage({
+            command:"ffprobe",
+            params: JSON.parse(jsonStr)
+        });
+    }else if(command == "load"){
+        const binary = params;
+        WebAssembly.instantiate(binary, info).then((data)=>{
+            addRunDependency('wasm-instantiate');
+            run();
+            receiveInstance(data.instance)
+            postMessage({
+                command:"load",
+                params:"下载完成"
+            })
+        })
+    }
+}
