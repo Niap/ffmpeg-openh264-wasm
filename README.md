@@ -1,6 +1,7 @@
 # How to build
 > target os:macos 11.6
 > Emcc:2.0.29
+> ffmpeg:4.3
 ## step1
 run script build_openh264.sh
 check build/lib/openh254.a file esists represents success.
