@@ -28,14 +28,14 @@ FLAGS=(
   --cxx=em++
   --objcc=emcc
   --dep-cc=emcc
-  #--enable-encoders
-  #--enable-decoders
+  --enable-encoders
+  --enable-decoders
   --enable-demuxers
   --enable-muxers
   --enable-protocols
-  #--enable-filters
-  #--enable-libmp3lame
-  #--enable-libopenh264
+  --enable-filters
+  --enable-libmp3lame
+  --enable-libopenh264
   #--enable-muxer=mp3,aac,mp4,image2,apng,gif
   #--enable-encoder=libopenh264,mjpeg,libmp3lame,aac
   #--enable-filter=scale,thumbnail,amix,aresample,aformat,asetnsamples,apad,split,palettegen,paletteuse,tile,volume,anull

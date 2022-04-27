@@ -7,9 +7,6 @@ this.ffmpegWorker.onmessage = (e)=>{
    // utils.saveFile(new Blob([videoData], {type:intputMine[targetType]} ),fileName+"."+targetType);
   }else if(command == "load"){
     coreLoaded = true;
-    
-  
-
   }else if(command == "ffprobe"){
     
   //  UI.swtichToDetail(params);
@@ -55,13 +52,13 @@ function convert(fileName,fileData,sourceType,targetType){
   });
 }
 
-fetch("./converter.wasm", { credentials: 'same-origin' }).then((response)=>{
-  console.log("转码程序下载完成.")
-    response.arrayBuffer().then((binary)=>{
-      ffmpegWorker.postMessage({
-        command:"load",
-        params:binary
-      });
-      console.log("转码程序加载完成.")
-    })
-})
+// fetch("./converter.wasm", { credentials: 'same-origin' }).then((response)=>{
+//   console.log("转码程序下载完成.")
+//     response.arrayBuffer().then((binary)=>{
+//       ffmpegWorker.postMessage({
+//         command:"load",
+//         params:binary
+//       });
+//       console.log("转码程序加载完成.")
+//     })
+// })

@@ -13,9 +13,9 @@ FLAGS=(
   -s USE_PTHREADS=0                             # enable pthreads support
   -s PROXY_TO_PTHREAD=0                         # detach main() from browser/UI main thread
   -s INVOKE_RUN=0                               # not to run the main() in the beginning
-  -s EXIT_RUNTIME=0                             # exit runtime after execution
-  #-s MODULARIZE=1                               # use modularized version to be more flexible
-  #-s EXPORT_NAME="createConverter"             # assign export name for browser
+  -s EXIT_RUNTIME=1                             # exit runtime after execution
+  -s MODULARIZE=1                               # use modularized version to be more flexible
+  -s EXPORT_NAME="createConverter"             # assign export name for browser
   -s EXPORTED_FUNCTIONS="[_main]"  # export main and proxy_main funcs
   -s EXPORTED_RUNTIME_METHODS="[FS, ccall, setValue, writeAsciiToMemory, addOnPreMain]"   # export preamble funcs
   -s INITIAL_MEMORY=268435456                  # 64 KB * 1024 * 16 * 2047 = 2146435072 bytes ~= 2 GB
