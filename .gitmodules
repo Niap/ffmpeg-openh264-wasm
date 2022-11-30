@@ -1,6 +1,6 @@
 [submodule "ffmpeg"]
 	path = ffmpeg
-	url = https://github.com/FFmpeg/FFmpeg
+	url = https://github.com/Niap/FFmpeg
 [submodule "openh264"]
 	path = openh264
 	url = https://github.com/cisco/openh264

@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "va_copy.h": "c"
+    },
+    "git.ignoreLimitWarning": true
+}
