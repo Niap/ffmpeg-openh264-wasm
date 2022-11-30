@@ -93,7 +93,7 @@ const runFFprobe = async (ifilename, data, args, ofilename) => {
 
 const main = (Core,args) => {
   Core.ccall(
-    'emscripten_proxy_main',
+    'proxy_main',
     'number',
     ['number', 'number'],
     parseArgs(Core, [...args]),
@@ -103,7 +103,7 @@ const main = (Core,args) => {
 
 const ffmpeg = (Core,args) => {
   Core.ccall(
-    'emscripten_proxy_main',
+    'proxy_main',
     'number',
     ['number', 'number'],
     parseArgs(Core, ['ffmpeg', '-nostdin', ...args]),
@@ -112,7 +112,7 @@ const ffmpeg = (Core,args) => {
 
 const ffprobe = (Core,args) => {
   Core.ccall(
-    'emscripten_proxy_main',
+    'proxy_main',
     'number',
     ['number', 'number'],
     parseArgs(Core, ['ffprobe', ...args]),
