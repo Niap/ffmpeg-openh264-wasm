@@ -2,7 +2,7 @@
 > target os:macos 11.6
 > Emcc:2.0.29
 > ffmpeg:n4.3.1
-> openh264:
+> openh264:openh264v2.3.1
 > lame:master
 ## step1
 run script build_openh264.sh
