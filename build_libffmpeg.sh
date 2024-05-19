@@ -28,19 +28,13 @@ FLAGS=(
   --cxx=em++
   --objcc=emcc
   --dep-cc=emcc
-  #--enable-encoders
-  #--enable-decoders
-  --enable-demuxers
-  --enable-muxers
   --enable-protocols
-  #--enable-filters
-  #--enable-libmp3lame
-  #--enable-libopenh264
-  #--enable-muxer=mp3,aac,mp4,image2,apng,gif
-  #--enable-encoder=libopenh264,mjpeg,libmp3lame,aac
-  #--enable-filter=scale,thumbnail,amix,aresample,aformat,asetnsamples,apad,split,palettegen,paletteuse,tile,volume,anull
-  #--enable-decoder=libopenh264,mp3,aac
-  #--enable-demuxer=mov,mp4,m4a,3gp,3g2,mj2,avi
+  --enable-libopenh264
+  --enable-muxer=mp4
+  --enable-encoder=libopenh264
+  --enable-filter=scale,thumbnail,amix,aresample,aformat,asetnsamples,apad,split,palettegen,paletteuse,tile,volume,anull
+  --enable-decoder=libopenh264
+  --enable-demuxer=mov,mp4,m4a,3gp,3g2,mj2,avi
 )
 
 cd ffmpeg

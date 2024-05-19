@@ -3,10 +3,10 @@ FLAGS=(
   -I$BUILD_DIR/include -Iffmpeg
   -L$BUILD_DIR/lib
   -Wno-deprecated-declarations -Wno-pointer-sign -Wno-implicit-int-float-conversion -Wno-switch -Wno-parentheses -Qunused-arguments
-  -lavdevice -lavfilter -lavformat -lavcodec -lswresample -lswscale -lavutil -lm
+  -lavdevice -lavfilter -lavformat -lavcodec -lswresample -lswscale -lavutil -lm -lopenh264
   src/ffmpeg_opt.c src/ffmpeg_filter.c src/ffmpeg_hw.c src/cmdutils.c src/ffmpeg.c src/ffprobe.c src/main.c
   -o example/converter.js
-  -g
+  -O3
   -msimd128
   -s ERROR_ON_UNDEFINED_SYMBOLS=0
   -s USE_SDL=0                                  # use SDL2

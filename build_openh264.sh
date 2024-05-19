@@ -1,5 +1,5 @@
 LIB_PATH=openh264
-CFLAGS="-s USE_PTHREADS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -O3 -msimd128 -fno-stack-protector"
+CFLAGS="-s USE_PTHREADS=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -O3 -msimd128 -fno-stack-protector -D__Fuchsia__"
 LDFLAGS="$CFLAGS" 
 BUILD_DIR=$PWD/build
 CFLAGS=${CFLAGS} CXXFLAGS=${CFLAGS} LDFLAGS=${LDFLAGS} emmake make -C $LIB_PATH install-static PREFIX=${BUILD_DIR} OS=linux ARCH=asmjs
