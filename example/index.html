@@ -14,61 +14,10 @@
     </style>
   </head>
   <body>
-    <h3>Upload a video to transcode to mp4 (x264) and play!</h3>
-    <input type="file" id="uploader">
-    <img id="output-image" />
-    <img id="cover-image" />
-    <audio id="output-audio" controls></audio>
-    <video id="output-video" controls></video>
-    <script type="text/javascript" src="./utils.js"></script>
-    <script type="text/javascript">
-      const message = document.getElementById('message');
-      const IN_FILE_NAME = 'video.mp4';
-      const getVideoShot = async (data,outFile) => {
-        const args = ["-i",IN_FILE_NAME , "-vf",`select='isnan(prev_selected_t)+gte(t-prev_selected_t,2)',scale=-2:90,tile=1*12`,"%3d.jpg"];
-        var imageFile = await runFFmpeg(IN_FILE_NAME, data, args,outFile)
-        const imageDom = document.getElementById('output-image');
-        imageDom.src = URL.createObjectURL(new Blob([imageFile.file.buffer], { type: 'image/jpeg' }));
-      };
-
-      const getAudio = async(data,outFile) => {
-        const args = ["-i",IN_FILE_NAME,'-vn', '-c:a','mp3',outFile];
-        var audioFile = await runFFmpeg(IN_FILE_NAME, data, args,outFile)
-        const audioDom = document.getElementById('output-audio');
-        audioDom.src = URL.createObjectURL(new Blob([audioFile.file.buffer], { type: 'audio/mp3' }));
-      }
-
-      const getCover = async(data,outFile) => {
-        const args = ["-i",IN_FILE_NAME,'-vf', 'thumbnail,scale=-2:360','-frames:v','1',outFile];
-        var coverFile = await runFFmpeg(IN_FILE_NAME, data, args,outFile)
-        const imageDom = document.getElementById('cover-image');
-        imageDom.src = URL.createObjectURL(new Blob([coverFile.file.buffer], { type: 'audio/jpeg' }));
-      }
-
-      const get360p = async(data,outFile) => {
-        const args = ["-i",IN_FILE_NAME,'-vf', 'scale=-2:360','-c:v','h264','-c:a','copy',outFile];
-        var video360File = await runFFmpeg(IN_FILE_NAME, data, args,outFile)
-        const videoDom = document.getElementById('output-video');
-        videoDom.src = URL.createObjectURL(new Blob([video360File.file.buffer], { type: 'video/mp4' }));
-      }
-      const getVideoDuration = async(data)=>{
-        const args = ["-i",IN_FILE_NAME,"-v","error","-select_streams","v:0","-show_entries","stream=duration","-of","default=noprint_wrappers=1:nokey=1"]
-        var outFile = await runFFprobe(IN_FILE_NAME,data,args,'out.txt');
-        var str = String.fromCharCode.apply(null, outFile.file);
-      }
-
-
-      const onFileSelected = async ({target: { files }})=>{
-       
-        const data = new Uint8Array(await readFromBlobOrFile(files[0]));
-
-        //getVideoShot(data,'001.jpg');
-        getAudio(data,'/out.mp3');
-        //getCover(data,'out.jpg');
-        // get360p(data,'out.mp4')
-      }
-      document.getElementById('uploader').addEventListener('change', onFileSelected);
-    </script>
-    <script type="text/javascript" src="./ffmpeg-core.js"></script>
+    <script type="text/javascript" src="./index.js"></script>
+    <!-- delete createWasm() && run() -->
+   
+    <button onclick="clickToGetInfo()">getInfo</button>
+    <button onclick="clickToConvert()">convert</button>
   </body>
 </html>
